@@ -36,7 +36,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { SuscripcionDto } from './suscripcion.dto';
 import { SuscripcionesService } from './suscripciones.service';
 
-@Controller('suscripciones')
+@Controller('gestion-planes')
 @UseInterceptors(BusinessErrorsInterceptor)
 export class SuscripcionesController {
   constructor(
