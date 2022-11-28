@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: development
+  name: ms-suscripciones
+  labels:
+    app: ms-suscripciones
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-suscripciones
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ms-suscripciones
+    spec:
+      containers:
+        - name: contenendor-ms-suscripciones
+          image: IMAGE
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "350m"
+          ports:
+            - containerPort: 3070
+            - containerPort: 4070
+          env:
+            - name: NODE_ENV
+              value: "development"
+            - name: AUTH_MS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: suscripciones-config-map
+                  key: AUTH_MS_HOST
+            - name: AUTH_MS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: suscripciones-config-map
+                  key: AUTH_MS_PORT
+            - name: MS_CATALOGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: suscripciones-config-map
+                  key: MS_CATALOGO_HOST
+            - name: MS_CATALOGO_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: suscripciones-config-map
+                  key: MS_CATALOGO_PORT
+            - name: USER_MS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: suscripciones-config-map
+                  key: USER_MS_HOST
+            - name: USER_MS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: suscripciones-config-map
+                  key: USER_MS_PORT
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: suscripciones-secrets
+                  key: POSTGRES_USER
+                  optional: false
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: suscripciones-secrets
+                  key: POSTGRES_PASSWORD
+                  optional: false
+            - name: DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: suscripciones-secrets
+                  key: POSTGRES_HOST
+                  optional: false
+            - name: DATABASE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: suscripciones-secrets
+                  key: POSTGRES_PORT
+                  optional: false
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: suscripciones-secrets
+                  key: POSTGRES_DB
+                  optional: false
+          # Realizar pull siempre a la imagen
+          imagePullPolicy: Always
+      serviceAccountName: ksa-dev-sportapp
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  namespace: development
+  name: sportapp-suscripciones-backendconfig
+spec:
+  timeoutSec: 65
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 3
+    requestPath: /suscripciones/health
+---
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: development
+  name: service-ms-suscripciones
+  annotations:
+    cloud.google.com/backend-config: '{"default": "sportapp-suscripciones-backendconfig"}'
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP
+  selector:
+    app: ms-suscripciones
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3070
+---
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: development
+  name: service-ms-tcp-suscripciones
+  annotations:
+    cloud.google.com/backend-config: '{"default": "sportapp-suscripciones-backendconfig"}'
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP
+  selector:
+    app: ms-suscripciones
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4070
