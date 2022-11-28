@@ -166,7 +166,7 @@ export class SuscripcionesController {
         const complemento$ = this.clienteCatalogoService
           .send(
             { role: 'complementoPlan', cmd: 'getById' },
-            { molestiaId: complementoPlanId },
+            { idComplementoPlan: complementoPlanId },
           )
           .pipe(
             timeout(5000),
@@ -178,9 +178,9 @@ export class SuscripcionesController {
             }),
           );
 
-        const molestia = await firstValueFrom(complemento$);
+        const complemento = await firstValueFrom(complemento$);
 
-        if (!molestia) {
+        if (!complemento) {
           throw new BusinessLogicException(
             `No se encontró el complemento con el id ${complementoPlanId}`,
             BusinessError.NOT_FOUND,
@@ -195,7 +195,7 @@ export class SuscripcionesController {
   }
 
   private async validarMedioPago(idMedioPago: number) {
-    const nivelPlan$ = this.clienteCatalogoService
+    const medioPago$ = this.clienteCatalogoService
       .send({ role: 'medioPago', cmd: 'getById' }, { idMedioPago: idMedioPago })
       .pipe(
         timeout(5000),
@@ -207,9 +207,9 @@ export class SuscripcionesController {
         }),
       );
 
-    const nivelPlan = await firstValueFrom(nivelPlan$);
+    const medioPago = await firstValueFrom(medioPago$);
 
-    if (!nivelPlan) {
+    if (!medioPago) {
       throw new BusinessLogicException(
         `No se encontró un medio de pago con el id ${idMedioPago}`,
         BusinessError.NOT_FOUND,
