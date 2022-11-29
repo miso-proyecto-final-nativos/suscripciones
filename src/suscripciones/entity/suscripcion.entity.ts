@@ -15,7 +15,7 @@ export class SuscripcionEntity {
   idNivel: number;
 
   @Column({ array: true })
-  complementos: number;
+  complementos?: number;
 
   @Column()
   idMedioPago: number;
