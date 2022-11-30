@@ -108,7 +108,7 @@ spec:
   healthCheck:
     checkIntervalSec: 10
     timeoutSec: 3
-    requestPath: /suscripciones/health
+    requestPath: /gestion-planes/health
 ---
 kind: Service
 apiVersion: v1
